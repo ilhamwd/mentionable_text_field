@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - mentionable_text_field (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - mentionable_text_field (from `.symlinks/plugins/mentionable_text_field/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  mentionable_text_field:
+    :path: ".symlinks/plugins/mentionable_text_field/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  mentionable_text_field: 6f58c09832c603ad1948ca47c3f32402e05daf8d
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.12.1
