@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:mentionable_text_field/controllers/mentionable_text_field_controller.dart';
 
