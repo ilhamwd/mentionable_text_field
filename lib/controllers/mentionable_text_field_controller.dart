@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:mentionable_text_field/models/grouped_char_item.dart';
 
@@ -66,8 +64,7 @@ class MentionableTextFieldController extends TextEditingController {
 
   void appendMention(String mentionedValue) {
     value = TextEditingValue(
-        text: text
-            .replaceAll("@$findMentionQuery", "@'$mentionedValue' "),
+        text: text.replaceAll("@$findMentionQuery", "@'$mentionedValue' "),
         selection: TextSelection.collapsed(
             offset: selection.baseOffset +
                 (mentionedValue.length - findMentionQuery!.length).abs() +
