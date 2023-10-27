@@ -18,7 +18,7 @@ class MentionableTextField extends StatefulWidget {
   final int? maxLines;
   final void Function(String? query)? onSearch;
   final TextInputType? keyboardType;
-  final void Function(String? value)? onChanged;
+  final void Function(String value)? onChanged;
 
   @override
   State<MentionableTextField> createState() => _MentionableTextFieldState();
