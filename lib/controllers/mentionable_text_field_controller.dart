@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mentionable_text_field/models/grouped_char_item.dart';
 
@@ -9,7 +10,7 @@ class MentionableTextFieldController extends TextEditingController {
   static TextSpan textSpanBuilder(
       {required String text,
       TextStyle? style,
-      void Function(int index, String label)? onMentionClicked}) {
+      void Function(String label)? onMentionClicked}) {
     final groupedCharacters = <GroupedCharItem>[];
     final mentionMatches = mentionRegExp.allMatches(text).toList();
 
@@ -42,14 +43,20 @@ class MentionableTextFieldController extends TextEditingController {
     return TextSpan(
         style: style,
         children: groupedCharacters
-            .map((e) => TextSpan(
-                text: e.char,
-                style: e.isMentioning
-                    ? TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                        backgroundColor: Colors.blue.withOpacity(.1))
-                    : style))
+            .map(
+              (e) => TextSpan(
+                  text: e.char,
+                  style: e.isMentioning
+                      ? TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                          backgroundColor: Colors.blue.withOpacity(.1))
+                      : style,
+                  recognizer: onMentionClicked == null
+                      ? null
+                      : (TapGestureRecognizer()
+                        ..onTap = () => onMentionClicked(e.char))),
+            )
             .toList());
   }
 
