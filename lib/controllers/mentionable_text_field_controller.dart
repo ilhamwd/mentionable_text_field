@@ -6,14 +6,12 @@ class MentionableTextFieldController extends TextEditingController {
 
   static final mentionRegExp = RegExp(r"@'([a-zA-Z0-9\s]+)('|\s)?");
 
-  @override
-  TextSpan buildTextSpan(
-      {required BuildContext context,
+  static TextSpan textSpanBuilder(
+      {required String text,
       TextStyle? style,
-      required bool withComposing}) {
+      void Function(int index, String label)? onMentionClicked}) {
     final groupedCharacters = <GroupedCharItem>[];
-    final text = value.text;
-    final mentionMatches = mentionRegExp.allMatches(value.text).toList();
+    final mentionMatches = mentionRegExp.allMatches(text).toList();
 
     if (mentionMatches.isNotEmpty) {
       groupedCharacters.add(
@@ -53,6 +51,14 @@ class MentionableTextFieldController extends TextEditingController {
                         backgroundColor: Colors.blue.withOpacity(.1))
                     : style))
             .toList());
+  }
+
+  @override
+  TextSpan buildTextSpan(
+      {required BuildContext context,
+      TextStyle? style,
+      required bool withComposing}) {
+    return textSpanBuilder(text: text, style: style);
   }
 
   List<String> get mentionedPeople {
