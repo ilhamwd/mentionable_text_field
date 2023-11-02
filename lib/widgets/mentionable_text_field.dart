@@ -61,7 +61,9 @@ class _MentionableTextFieldState extends State<MentionableTextField> {
           if (charIndex < 0) break;
         }
 
-        currentlyBeingEdited = currentlyBeingEdited.substring(1);
+        currentlyBeingEdited = currentlyBeingEdited[0] == " "
+            ? currentlyBeingEdited.substring(1)
+            : currentlyBeingEdited;
 
         if (currentlyBeingEdited.isNotEmpty && currentlyBeingEdited[0] == "@") {
           int charIndex = controller.selection.baseOffset;
