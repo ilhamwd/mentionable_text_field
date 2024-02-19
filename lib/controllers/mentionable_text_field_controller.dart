@@ -4,8 +4,9 @@ import 'package:mentionable_text_field/models/grouped_char_item.dart';
 
 class MentionableTextFieldController extends TextEditingController {
   String? findMentionQuery;
+  String? prefix;
 
-  static final mentionRegExp = RegExp(r"@'([a-zA-Z0-9\s]+)('|\s)?");
+  static final mentionRegExp = RegExp(r"(@|#)'([a-zA-Z0-9\s]+)('|\s)?");
 
   static TextSpan textSpanBuilder(
       {required String text,
@@ -77,7 +78,8 @@ class MentionableTextFieldController extends TextEditingController {
 
   void appendMention(String mentionedValue) {
     value = TextEditingValue(
-        text: text.replaceAll("@$findMentionQuery", "@'$mentionedValue' "),
+        text: text.replaceAll(
+            "$prefix$findMentionQuery", "$prefix'$mentionedValue' "),
         selection: TextSelection.collapsed(
             offset: selection.baseOffset +
                 (mentionedValue.length - findMentionQuery!.length).abs() +

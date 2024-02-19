@@ -14,7 +14,7 @@ class MentionableTextField extends StatefulWidget {
   final MentionableTextFieldController? controller;
   final InputDecoration? decoration;
   final int? maxLines;
-  final void Function(String? query)? onSearch;
+  final void Function(String? query, String? prefix)? onSearch;
   final TextInputType? keyboardType;
   final void Function(String value)? onChanged;
 
@@ -80,13 +80,17 @@ class _MentionableTextFieldState extends State<MentionableTextField> {
             charIndex++;
           }
 
-          controller.findMentionQuery = currentlyBeingEdited.substring(1);
+          controller
+            ..prefix = currentlyBeingEdited[0]
+            ..findMentionQuery = currentlyBeingEdited.substring(1);
         } else {
-          controller.findMentionQuery = null;
+          controller
+            ..prefix = null
+            ..findMentionQuery = null;
         }
 
         if (widget.onSearch != null) {
-          widget.onSearch!(controller.findMentionQuery);
+          widget.onSearch!(controller.findMentionQuery, controller.prefix);
         }
 
         if (isDeleting && prevValueSize - valueSize <= 2) {
@@ -103,6 +107,10 @@ class _MentionableTextFieldState extends State<MentionableTextField> {
               break;
             }
           }
+        }
+      } else {
+        if (widget.onSearch != null) {
+          widget.onSearch!(null, null);
         }
       }
 

@@ -53,7 +53,7 @@ class _AppState extends State<App> {
               MentionableTextField(
                 controller: controller,
                 maxLines: 3,
-                onSearch: (val) {
+                onSearch: (val, prefix) {
                   setState(() {
                     findQuery = val;
                   });
@@ -65,14 +65,14 @@ class _AppState extends State<App> {
                     .where(
                         (element) => element.toLowerCase().contains(findQuery!))
                     .map((e) => TextButton(
-                    onPressed: () {
-                      setState(() {
-                        findQuery = null;
-                      });
+                        onPressed: () {
+                          setState(() {
+                            findQuery = null;
+                          });
 
-                      controller.appendMention(e);
-                    },
-                    child: Text(e)))
+                          controller.appendMention(e);
+                        },
+                        child: Text(e)))
             ],
           ),
         ),
