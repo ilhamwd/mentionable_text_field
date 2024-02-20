@@ -65,46 +65,64 @@ class _MentionableTextFieldState extends State<MentionableTextField> {
             ? currentlyBeingEdited.substring(1)
             : currentlyBeingEdited;
 
-        if (currentlyBeingEdited.isNotEmpty &&
-            ["@", "#"].contains(currentlyBeingEdited[0])) {
-          int charIndex = controller.selection.baseOffset;
+        if (currentlyBeingEdited.isNotEmpty) {
+          // Mention functionality
+          if (["@"].contains(currentlyBeingEdited[0])) {
+            int charIndex = controller.selection.baseOffset;
 
-          while (currentlyBeingEdited[currentlyBeingEdited.length - 1] != " ") {
-            if (charIndex >= valueSize - 1) {
-              break;
-            } else {
-              currentlyBeingEdited +=
-                  controller.text.substring(charIndex, charIndex + 1);
+            while (![10, 32].contains(
+                currentlyBeingEdited[currentlyBeingEdited.length - 1]
+                    .codeUnits[0])) {
+              if (charIndex >= valueSize - 1) {
+                break;
+              } else {
+                currentlyBeingEdited +=
+                    controller.text.substring(charIndex, charIndex + 1);
+              }
+
+              charIndex++;
             }
 
-            charIndex++;
+            controller
+              ..prefix = currentlyBeingEdited[0]
+              ..findMentionQuery = currentlyBeingEdited
+                  .substring(1)
+                  .replaceAll(RegExp(r"\s|\n"), "");
+          } else {
+            controller
+              ..prefix = null
+              ..findMentionQuery = null;
           }
 
-          controller
-            ..prefix = currentlyBeingEdited[0]
-            ..findMentionQuery = currentlyBeingEdited.substring(1);
-        } else {
-          controller
-            ..prefix = null
-            ..findMentionQuery = null;
-        }
+          if (widget.onSearch != null) {
+            widget.onSearch!(controller.findMentionQuery, controller.prefix);
+          }
 
-        if (widget.onSearch != null) {
-          widget.onSearch!(controller.findMentionQuery, controller.prefix);
-        }
+          if (isDeleting && prevValueSize - valueSize <= 2) {
+            final cursorOffset = controller.selection.baseOffset;
 
-        if (isDeleting && prevValueSize - valueSize <= 2) {
-          final cursorOffset = controller.selection.baseOffset;
+            for (final match in mentionMatches.reversed) {
+              if (cursorOffset >= match.start && cursorOffset <= match.end) {
+                final mention =
+                    controller.text.substring(match.start, match.end);
 
-          for (final match in mentionMatches.reversed) {
-            if (cursorOffset >= match.start && cursorOffset <= match.end) {
-              final mention = controller.text.substring(match.start, match.end);
+                controller.value = TextEditingValue(
+                    text: controller.text.replaceAll(mention, " "),
+                    selection: TextSelection.collapsed(
+                        offset: baseSelectionOffset - mention.length + 1));
+                break;
+              }
+            }
+          }
 
-              controller.value = TextEditingValue(
-                  text: controller.text.replaceAll(mention, " "),
-                  selection: TextSelection.collapsed(
-                      offset: baseSelectionOffset - mention.length + 1));
-              break;
+          // Hashtag functionality
+          if (currentlyBeingEdited[0] == "#") {
+            controller
+              ..prefix = "#"
+              ..findMentionQuery = currentlyBeingEdited.substring(1);
+
+            if (widget.onSearch != null) {
+              widget.onSearch!(controller.findMentionQuery, controller.prefix);
             }
           }
         }

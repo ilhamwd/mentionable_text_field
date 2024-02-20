@@ -6,40 +6,60 @@ class MentionableTextFieldController extends TextEditingController {
   String? findMentionQuery;
   String? prefix;
 
-  static final mentionRegExp = RegExp(r"(@|#)'([a-zA-Z0-9\s]+)('|\s)?");
+  static final mentionRegExp = RegExp(r"@'([a-zA-Z0-9\s]+)('|\s)?");
+
+  static final hashtagRegExp = RegExp(r"#(\S)+");
 
   static TextSpan textSpanBuilder(
       {required String text,
       TextStyle? style,
       void Function(String label)? onMentionClicked}) {
+    final groupedCharactersRaw = <List<int>>[];
     final groupedCharacters = <GroupedCharItem>[];
     final mentionMatches = mentionRegExp.allMatches(text).toList();
+    final hashtagMatrches = hashtagRegExp.allMatches(text).toList();
+    final highlightedMatches = [...mentionMatches, ...hashtagMatrches];
 
-    if (mentionMatches.isNotEmpty) {
-      groupedCharacters.add(
-          GroupedCharItem(char: text.substring(0, mentionMatches.first.start)));
+    highlightedMatches.sort((a, b) {
+      return a.start.compareTo(b.start);
+    });
 
-      for (int i = 0; i < mentionMatches.length; i++) {
-        final match = mentionMatches[i];
-        RegExpMatch? nextMatch;
+    // Separate mentionables from regular texts
+    if (highlightedMatches.isNotEmpty) {
+      for (int i = 0; i < highlightedMatches.length; i++) {
+        final match = highlightedMatches[i];
+        var nextCharRange = <int>[0, 0];
 
         try {
-          nextMatch = mentionMatches[i + 1];
+          final nextMatch = highlightedMatches[i + 1];
+          nextCharRange = [match.end, nextMatch.start, 0];
         } catch (e) {
-          nextMatch = null;
+          nextCharRange = [match.end, text.length, 0];
         }
 
-        groupedCharacters.add(GroupedCharItem(
-            char: text
-                .substring(match.start, match.end)
-                .replaceAll("'", "\u200B"),
-            isMentioning: true));
-        groupedCharacters.add(
-            GroupedCharItem(char: text.substring(match.end, nextMatch?.start)));
+        if (i < 1) {
+          groupedCharactersRaw.add([0, match.start, 0]);
+        }
+
+        groupedCharactersRaw.addAll([
+          [match.start, match.end, 1],
+          nextCharRange
+        ]);
       }
     } else {
-      groupedCharacters.add(GroupedCharItem(char: text));
+      groupedCharactersRaw.add([0, text.length, 0]);
     }
+
+    groupedCharacters.addAll(groupedCharactersRaw.map((e) {
+      var trimmedText = text.substring(e[0], e[1]);
+
+      // Mention renderer
+      if (trimmedText.isNotEmpty && trimmedText[0] == "@") {
+        trimmedText = trimmedText.replaceAll("'", "\u200B");
+      }
+
+      return GroupedCharItem(char: trimmedText, isMentioning: e[2] == 1);
+    }));
 
     return TextSpan(
         style: style,
@@ -77,9 +97,20 @@ class MentionableTextFieldController extends TextEditingController {
   }
 
   void appendMention(String mentionedValue) {
+    var val = text;
+
+    if (findMentionQuery == null || findMentionQuery!.isEmpty) {
+      final cursorOffset = selection.baseOffset;
+      final headChars = text.substring(0, cursorOffset);
+      final tailChars = text.substring(cursorOffset);
+
+      val = "$headChars'$mentionedValue' $tailChars";
+    } else {
+      val = text.replaceAll("@$findMentionQuery", "@'$mentionedValue' ");
+    }
+
     value = TextEditingValue(
-        text: text.replaceAll(
-            "$prefix$findMentionQuery", "$prefix'$mentionedValue' "),
+        text: val,
         selection: TextSelection.collapsed(
             offset: selection.baseOffset +
                 (mentionedValue.length - findMentionQuery!.length).abs() +
