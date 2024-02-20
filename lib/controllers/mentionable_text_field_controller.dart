@@ -116,4 +116,24 @@ class MentionableTextFieldController extends TextEditingController {
                 (mentionedValue.length - findMentionQuery!.length).abs() +
                 3));
   }
+
+  void appendHashtag(String hashtag) {
+    var val = text;
+
+    if (findMentionQuery == null || findMentionQuery!.isEmpty) {
+      final cursorOffset = selection.baseOffset;
+      final headChars = text.substring(0, cursorOffset);
+      final tailChars = text.substring(cursorOffset);
+
+      val = "$headChars$hashtag $tailChars";
+    } else {
+      val = text.replaceAll("#$findMentionQuery", "#'$hashtag' ");
+    }
+
+    value = TextEditingValue(
+        text: val,
+        selection: TextSelection.collapsed(
+            offset: selection.baseOffset +
+                (hashtag.length - findMentionQuery!.length).abs()));
+  }
 }

@@ -70,7 +70,11 @@ class _AppState extends State<App> {
                             findQuery = null;
                           });
 
-                          controller.appendMention(e);
+                          if (controller.prefix == "@") {
+                            controller.appendMention(e);
+                          } else {
+                            controller.appendHashtag(e);
+                          }
                         },
                         child: Text(e)))
             ],
