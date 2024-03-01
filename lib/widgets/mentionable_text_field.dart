@@ -9,7 +9,9 @@ class MentionableTextField extends StatefulWidget {
       this.decoration,
       this.onSearch,
       this.keyboardType,
-      this.onChanged});
+      this.onChanged,
+      this.focusNode,
+      this.enabled});
 
   final MentionableTextFieldController? controller;
   final InputDecoration? decoration;
@@ -17,6 +19,8 @@ class MentionableTextField extends StatefulWidget {
   final void Function(String? query, String? prefix)? onSearch;
   final TextInputType? keyboardType;
   final void Function(String value)? onChanged;
+  final FocusNode? focusNode;
+  final bool? enabled;
 
   @override
   State<MentionableTextField> createState() => _MentionableTextFieldState();
@@ -139,6 +143,8 @@ class _MentionableTextFieldState extends State<MentionableTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      focusNode: widget.focusNode,
+      enabled: widget.enabled,
       keyboardType: widget.keyboardType,
       onChanged: widget.onChanged,
       maxLines: widget.maxLines ?? 1,
